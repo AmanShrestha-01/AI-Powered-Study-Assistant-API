@@ -1,12 +1,11 @@
 from flask import Blueprint, jsonify, request
 from models import db, Note, User
 from middleware import get_logged_in_user
+from config import CLAUDE_API_KEY
 import datetime
 import requests as http_requests
 
 notes_bp = Blueprint("notes", __name__)
-
-from config import CLAUDE_API_KEY
 
 def call_claude(prompt):
     response = http_requests.post(
@@ -38,6 +37,37 @@ def increment_usage(user_id):
 
 @notes_bp.route("/notes", methods=["POST"])
 def create_note():
+    """
+    Upload study notes
+    ---
+    tags:
+      - Notes
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        type: string
+        description: JWT token
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            title:
+              type: string
+              example: Python Basics
+            content:
+              type: string
+              example: Python is a high-level programming language. Variables store data.
+    responses:
+      201:
+        description: Note created
+      400:
+        description: Invalid input
+      401:
+        description: Not logged in
+    """
     user = get_logged_in_user()
     if not user:
         return jsonify({"error": "You must be logged in"}), 401
@@ -58,6 +88,22 @@ def create_note():
 
 @notes_bp.route("/notes", methods=["GET"])
 def get_notes():
+    """
+    List all your notes
+    ---
+    tags:
+      - Notes
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        type: string
+    responses:
+      200:
+        description: List of notes with AI generation status
+      401:
+        description: Not logged in
+    """
     user = get_logged_in_user()
     if not user:
         return jsonify({"error": "You must be logged in"}), 401
@@ -76,6 +122,34 @@ def get_notes():
 
 @notes_bp.route("/notes/<int:note_id>/summary", methods=["POST"])
 def generate_summary(note_id):
+    """
+    Generate AI summary from notes
+    ---
+    tags:
+      - AI Generation
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        type: string
+      - in: path
+        name: note_id
+        required: true
+        type: integer
+    responses:
+      200:
+        description: AI-generated summary
+      401:
+        description: Not logged in
+      403:
+        description: Not your note
+      404:
+        description: Note not found
+      429:
+        description: Usage limit reached
+      500:
+        description: AI request failed
+    """
     user = get_logged_in_user()
     if not user:
         return jsonify({"error": "You must be logged in"}), 401
@@ -97,6 +171,34 @@ def generate_summary(note_id):
 
 @notes_bp.route("/notes/<int:note_id>/quiz", methods=["POST"])
 def generate_quiz(note_id):
+    """
+    Generate AI quiz questions from notes
+    ---
+    tags:
+      - AI Generation
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        type: string
+      - in: path
+        name: note_id
+        required: true
+        type: integer
+    responses:
+      200:
+        description: AI-generated quiz questions
+      401:
+        description: Not logged in
+      403:
+        description: Not your note
+      404:
+        description: Note not found
+      429:
+        description: Usage limit reached
+      500:
+        description: AI request failed
+    """
     user = get_logged_in_user()
     if not user:
         return jsonify({"error": "You must be logged in"}), 401
@@ -118,6 +220,34 @@ def generate_quiz(note_id):
 
 @notes_bp.route("/notes/<int:note_id>/study-guide", methods=["POST"])
 def generate_study_guide(note_id):
+    """
+    Generate AI study guide from notes
+    ---
+    tags:
+      - AI Generation
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        type: string
+      - in: path
+        name: note_id
+        required: true
+        type: integer
+    responses:
+      200:
+        description: AI-generated study guide
+      401:
+        description: Not logged in
+      403:
+        description: Not your note
+      404:
+        description: Note not found
+      429:
+        description: Usage limit reached
+      500:
+        description: AI request failed
+    """
     user = get_logged_in_user()
     if not user:
         return jsonify({"error": "You must be logged in"}), 401
@@ -139,6 +269,22 @@ def generate_study_guide(note_id):
 
 @notes_bp.route("/usage", methods=["GET"])
 def get_usage():
+    """
+    Check your AI usage
+    ---
+    tags:
+      - Usage
+    parameters:
+      - in: header
+        name: Authorization
+        required: true
+        type: string
+    responses:
+      200:
+        description: Usage count and remaining requests
+      401:
+        description: Not logged in
+    """
     user = get_logged_in_user()
     if not user:
         return jsonify({"error": "You must be logged in"}), 401

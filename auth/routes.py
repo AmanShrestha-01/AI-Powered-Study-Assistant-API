@@ -10,6 +10,32 @@ SECRET_KEY = "your-secret-key-change-this-later"
 
 @auth_bp.route("/signup", methods=["POST"])
 def signup():
+    """
+    Create a new account
+    ---
+    tags:
+      - Auth
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              example: kaizen
+            password:
+              type: string
+              example: mypassword123
+    responses:
+      201:
+        description: Account created
+      400:
+        description: Invalid input
+      409:
+        description: Username taken
+    """
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
@@ -26,6 +52,32 @@ def signup():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
+    """
+    Log in and get a token
+    ---
+    tags:
+      - Auth
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              example: kaizen
+            password:
+              type: string
+              example: mypassword123
+    responses:
+      200:
+        description: Login successful, token returned
+      400:
+        description: Invalid input
+      401:
+        description: Wrong credentials
+    """
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
