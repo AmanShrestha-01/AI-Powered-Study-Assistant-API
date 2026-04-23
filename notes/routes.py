@@ -6,7 +6,7 @@ import requests as http_requests
 
 notes_bp = Blueprint("notes", __name__)
 
-CLAUDE_API_KEY = "REMOVED"
+from config import CLAUDE_API_KEY
 
 def call_claude(prompt):
     response = http_requests.post(
