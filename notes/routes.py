@@ -1,11 +1,13 @@
 from flask import Blueprint, jsonify, request
 from models import db, Note, User
 from middleware import get_logged_in_user
-from config import CLAUDE_API_KEY
+import os
 import datetime
 import requests as http_requests
 
 notes_bp = Blueprint("notes", __name__)
+
+CLAUDE_API_KEY = os.environ.get("CLAUDE_API_KEY", "")
 
 def call_claude(prompt):
     response = http_requests.post(
